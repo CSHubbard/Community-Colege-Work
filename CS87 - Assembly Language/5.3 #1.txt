@@ -1,0 +1,69 @@
+.586
+.MODEL FLAT
+.STACK  4096        ; reserve 4096-byte stack
+
+
+.DATA               ; reserve storage for data
+
+ltrArray DWORD 41, 61, 42, 62, 43, 63, 44, 64, 0
+
+
+.CODE               ; start of main program code
+
+main    PROC
+
+lea eax, ltrArray
+push eax			;pushes the parameter
+					;address of array of characters
+
+call toUpper		;calls to upper function
+add esp, 4			;resets stack pointer
+
+	ret
+
+main ENDP
+
+;function changes all lowercase letters to uppercase ones
+
+toUpper PROC
+	
+	push ebp
+	mov ebp, esp	;saves & moves base pointer
+
+	push ebx
+	push eax		;saves registers we will use
+	mov eax, [ebp+8]	;movs the parameter(adres of array) into eax for use
+
+	START:
+	
+
+	mov ebx, [eax]		;moves letter(ascii value) into ebx for comparisons and 
+						;possible modification
+	cmp ebx, 0					
+	je SNRA				;leaves if the end of the string is reached
+
+	cmp ebx, 61			;compares current letter (in ebx) to 61
+	jl RUP				;(the ascii for lowercase a) and goes to next letter 
+						;if it is less. (being less means its already a capital letter)
+	
+	sub ebx, 20			;if the above jumps were not met that means its not a 
+						;capital letter and needs to be made into one, this does so.
+
+	mov [eax], ebx		;moves our new lowercase letter into its place in the array
+
+RUP:
+	add eax, 4			;adds 4 to eax, which holds the address of the first letter in 
+						;our array, moving us to the next position/letter in  the array
+	jmp START			;Loops for next letter
+
+
+	SNRA:
+	
+	pop eax			
+	pop ebx			;restores registers
+	pop ebp			;resotres base pointer
+	ret
+	
+toUpper ENDP
+
+END

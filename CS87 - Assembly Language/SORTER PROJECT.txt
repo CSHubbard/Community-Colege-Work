@@ -1,0 +1,64 @@
+
+
+.586
+.MODEL FLAT
+
+.STACK 4096
+
+.DATA
+
+nbrArray	DWORD	1, 4, 18, 15, 12, 9, 17, 11, 13, 2, 14, 3, 20, 5, 19, 6, 7, 10, 8, 16
+nbrElts		DWORD	19
+smallv		DWORD	?
+smallspot	DWORD	1
+position	DWORD	0
+address		DWORD	1
+NEWNUM DWORD 1
+.CODE
+main PROC
+
+	mov ecx, position ;ecx position counter
+	mov edi, nbrElts	;esi spot counter
+
+
+Begin:
+	lea eax, nbrArray			;eax hold small spot
+	mov ebx, [eax]				;ebx holds small value
+	mov esi, ecx	
+	jmp SPOTLOOP
+
+Start:
+	cmp ecx, edi
+	jg END1
+	lea eax, nbrArray[4*ecx]	;eax hold small spot
+	mov ebx, [eax]				;ebx holds small value
+	mov esi, ecx				;resets element counter(accounts for spots already passed)
+	
+SPOTLOOP:
+	cmp esi, edi
+	jg END2
+	cmp nbrArray[4*esi], ebx
+	jl END3
+
+CONT:
+	inc esi
+	jmp SPOTLOOP
+
+END3:
+	mov edx, nbrArray[4*esi]
+	mov nbrArray[4*esi], ebx
+	mov [eax], edx
+	mov ebx, [eax]				;ebx holds small value
+	jmp CONT
+
+END2:
+	inc ecx
+	jmp START
+
+END1:
+	ret
+
+
+main	ENDP
+
+END

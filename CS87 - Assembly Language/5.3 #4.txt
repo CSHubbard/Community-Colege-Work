@@ -1,0 +1,87 @@
+.586
+.MODEL FLAT
+.STACK  4096        ; reserve 4096-byte stack
+
+
+.DATA               ; reserve storage for data
+
+numArray DWORD 10, 12, 10, 12, 10, 12
+nbrElts DWORD 6
+Average DWORD ?
+
+.CODE               ; start of main program code
+
+main    PROC
+
+	lea eax, numArray
+	push eax		
+		
+	mov eax, nbrElts	
+	push eax
+
+	lea eax, Average	;loads parameters into eax and then stores them
+	push eax			;on the stack
+
+
+	call avg			;calls upCount function
+	add esp, 12			;resets stack pointer
+
+	ret
+
+main ENDP
+
+;function finds the average of the array and stores it on the stack
+
+avg PROC
+	
+	push ebp
+	mov ebp, esp		;saves and moves base pointer
+
+	push edx
+	push ecx
+	push ebx
+	push eax		;saves registers to be used
+
+	mov ecx, 0		;readies ecx for use
+	mov edx, 1		;moves 1 into edx so we can use it as our cournter to
+					;compare to number the of elements
+
+	mov ebx, [ebp+12]	;stores number of elements in ebx for use
+
+	mov eax, [ebp+16]	;stores adress of the array in eax for use
+
+	CONT:
+	cmp edx, ebx		;compares counter to number of elements and jumps
+	jg AVGE				;when the number of elements has been reached
+						
+	add ecx, [eax]		;ecx is our accumulator for the elements in the array
+						;so we can divide by the number of elements
+
+	add eax, 4			;adds 4 to the adress of the first number of the array
+						;moving to the second number of the array
+
+	inc edx
+	jmp CONT
+
+	AVGE:
+		mov edx,0		;readies edx for division
+		mov eax, ecx	;moves total of the elements in the array into eax for 
+						;division
+
+		idiv ebx			;finds the average
+
+		mov ebx, [ebp+8]	;moves the adress of where to store the averge into ebx
+		mov [ebx], eax		;moves the average into the adress specified
+
+		pop eax
+		pop ebx
+		pop ecx
+		pop edx			;restores registers
+		pop ebp			;restores base pointer
+
+		ret
+
+	
+avg ENDP
+
+END

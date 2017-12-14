@@ -1,0 +1,57 @@
+.586
+.MODEL FLAT
+.STACK  4096            ; reserve 4096-byte stack
+
+
+.DATA                   ; reserve storage for data
+
+a DWORD 4
+b DWORD 12
+c1 DWORD 6
+
+.CODE                           ; start of main program code
+
+main    PROC
+
+	push c1
+	push b
+	push a						;stores variables on the stack
+
+	call DISCFUCTN
+	add esp, 12				;resets stack pointer
+
+	ret
+
+main ENDP
+
+;function that calculates b*b-4*a*c
+;returns value in eax
+
+
+DISCFUCTN PROC
+
+	push ebp
+	mov ebp, esp			;saves & moves base pointer
+
+	push ebx				;saves registers we are going to use
+	push ecx
+
+
+	mov ebx, [ebp+8]		;moves a(4) to ebx {a}
+	imul ebx, 4				;multiples a(4) by 4 = 16 {4*a}
+	
+	mov ecx, [ebp+16]		;moves c(6) into ecx
+	imul ebx, ecx			;multiplies (ebx)16 by (ecx)6 = 96 {4*a*c}
+
+	mov eax, [ebp+12]		;moves b(12) into eax
+	mul eax					; squares b(12) = 144 {b*b}
+	sub eax, ebx			; subtracts ebx(96) from eax(144) = 48 {b*b-4*a*c}
+
+	pop ecx					
+	pop ebx					;restores teh registers
+	pop ebp					;restores teh base pointer
+
+	ret
+DISCFUCTN ENDP
+
+END

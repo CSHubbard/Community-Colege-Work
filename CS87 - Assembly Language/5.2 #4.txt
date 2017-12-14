@@ -1,0 +1,65 @@
+.586
+.MODEL FLAT
+.STACK  4096        ; reserve 4096-byte stack
+
+
+.DATA               ; reserve storage for data
+
+num1 DWORD 24
+num2 DWORD 18
+
+.CODE               ; start of main program code
+
+main    PROC
+
+ push num2
+ push num1			;stores variables on stack
+
+call GCDFINDER		;calls upCount function
+add esp, 8			;resets stack pointer
+
+	ret
+
+main ENDP
+
+;function finds the greatest common divisor and returns it in eax
+
+GCDFINDER PROC
+	
+	push ebp
+	mov ebp, esp		;saves & moves base pointer
+
+	push edx
+	push ecx
+	push ebx			;saves registers we are going to use
+
+
+	mov ebx, num1		;loads num1 into ebx for use
+	mov ecx, num2		;loads mun2 into ecx for use
+
+	Loop1: 
+		mov eax, ebx	;prepares num1 for division/start of loop
+
+		mov ebx, ecx	;movs remainder to ebx for division
+						;(first mov is actually second number(num2))
+
+		mov edx, 0		;prepares edx to hold divison result's remainder
+
+		div ebx			;divides by the remainder
+		mov cx, dx		;moves remainder to cx 
+
+		cmp ecx,0		;check for 0 remainder
+		jne Loop1		;and loops if not equal to zero
+
+		mov eax, ebx	;moves the previous remainder to eax to be returned
+						; if the remander of the divion was zero.
+
+		pop ebx	
+		pop ecx			
+		pop edx			;restores registers
+		pop ebp			;resotres base pointer
+		ret
+	
+GCDFINDER ENDP
+
+END

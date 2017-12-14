@@ -1,0 +1,56 @@
+
+
+.586
+.MODEL FLAT
+
+.STACK 4096
+
+.DATA
+		;declarations
+grade1 DWORD 100
+grade2 DWORD 100
+grade3 DWORD 96
+grade4 DWORD 96
+
+weight1 DWORD 2
+weight2 DWORD 2
+weight3 DWORD 3
+weight4 DWORD 3
+
+weightedsum DWORD ?
+sumofweights DWORD ?
+.CODE
+main	PROC
+		;finding sum of weight
+mov eax,weight1
+add eax,weight2
+add eax,weight3
+add eax,weight4
+
+mov sumofweights, eax
+
+		;finding weighted sum
+mov ecx,0
+mov eax, weight1
+mul grade1
+add ecx,eax
+
+mov eax, weight2
+mul grade2
+add ecx, eax
+
+mov eax, weight3
+mul grade3
+add ecx, eax
+
+mov eax, weight4
+mul grade4
+add ecx, eax
+
+	;finding  weighted average
+mov eax, ecx
+div sumofweights
+
+		ret
+main	ENDP
+END

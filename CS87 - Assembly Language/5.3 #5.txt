@@ -1,0 +1,89 @@
+.586
+.MODEL FLAT
+.STACK  4096        ; reserve 4096-byte stack
+
+
+.DATA               ; reserve storage for data
+
+Cptn		DWORD 5
+numArray	DWORD 10, 12, 10, 5, 10, 12
+nbrElts		DWORD 6
+
+.CODE               ; start of main program code
+
+main    PROC
+
+	mov eax, Cptn
+	push eax		
+		
+	lea eax, numArray	
+	push eax
+
+	mov eax, nbrElts	;loads parameters into eax and then stores them
+	push eax			;on the stack
+
+
+	call finder			;calls upCount function
+	add esp, 12			;resets stack pointer
+
+	ret
+
+main ENDP
+
+;function finds where a specified number appears in an array and returns
+;its position in eax
+
+finder PROC
+	
+	push ebp
+	mov ebp, esp		;saves and moves base pointer
+
+	push edx
+	push ecx
+	push ebx			;saves registers to be used
+
+	mov eax, [ebp+16]	;stores the number we are looking for in eax for use
+
+	mov ebx, [ebp+12]	;stores adress of the array in ebx for use
+
+	mov ecx, [ebp+8]	;stores numebr of elements in ecx for use
+
+	mov edx, 1			;moves 1 into edx so we can use it as our counter to
+						;compare to number the of elements
+
+	CONT:
+	cmp edx, ecx		;jumps out if the entire array has been searched
+	jg NOTFOUND
+
+	cmp [ebx], eax		;compares current number to the number we are looking for
+	je FOUND			;and jumps out if it is found
+						
+	add ebx, 4			;adds 4 to the adress of the first number of the array
+						;moving to the second number of the array
+
+	inc edx				;if the number was not found increments edx (our position &
+	jmp CONT			;element counter) and loops
+
+	FOUND:
+		mov eax, edx		;moves the position of the numebr we were 
+							;looking for was found into eax so it can be returned
+
+		pop ebx
+		pop ecx
+		pop edx				;restores registers
+		pop ebp				;restores base pointer
+
+		ret
+	NOTFOUND:
+		mov eax, 0			;returns 0, as instruncted becasue the
+							;number was not found in the array
+		pop ebx
+		pop ecx
+		pop edx				;restores registers
+		pop ebp				;restores base pointer
+
+		ret
+	
+finder ENDP
+
+END

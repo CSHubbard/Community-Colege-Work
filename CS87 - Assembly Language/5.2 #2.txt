@@ -1,0 +1,62 @@
+.586
+.MODEL FLAT
+.STACK  4096        ; reserve 4096-byte stack
+
+
+.DATA               ; reserve storage for data
+
+num1 DWORD 10
+num2 DWORD 18
+
+
+.CODE               ; start of main program code
+
+main    PROC
+
+	push num2
+	push num1		;stores variables on the stack
+	call min2			;calls min procedure
+
+	add esp, 8		;restores stack pointer
+	ret
+
+main ENDP
+
+;function returns the value of smaller number
+
+min2 PROC
+
+	push ebp
+	mov ebp, esp		;saves & moves base pointer
+	
+	push ebx
+	push ecx			;saves registers we are going to use
+
+	mov ebx, [ebp+8]	;moves num1(10) into ebx
+	mov ecx, [ebp+12]	;moves num2(18)	into ecx
+
+	cmp ebx, ecx		;compares num1 and num2
+	jg GREATER			;jumps if num1 is greater than num2
+
+	mov eax, ebx		;since it didnt jump this will assumes ecx was greater
+						;and stores ecx(num1 - the smaller of the two) into eax so it can
+						;be retured to main
+	pop ecx
+	pop ebx				;restores registers
+	pop ebp				;restores base pointer
+
+		ret
+
+	GREATER:
+		mov eax, ecx	;jumped becasue num1 was bigger then num2
+						;and stored ecx (num2 - the smaller of the two)
+						;into eax so it can be returned to main
+
+	pop ecx
+	pop ebx				;restores registers
+	pop ebp				;restores base pointer
+
+		ret
+min2 ENDP
+
+END

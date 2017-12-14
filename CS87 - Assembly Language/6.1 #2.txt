@@ -1,0 +1,90 @@
+.586
+.MODEL FLAT
+
+.STACK  4096            ; reserve 4096-byte stack
+
+.DATA                   ; reserve storage for data
+
+numx	DWORD 4
+numy	DWORD 10
+numxmin DWORD 0
+numxmax DWORD 5
+numymin DWORD 0
+numymax DWORD 5
+
+.CODE                           ; start of main program code
+main    PROC
+	
+	push numx	
+	push numy	
+	push numxmin 
+	push numxmax 
+	push numymin 
+	push numymax    ;pushes point coordinates and testing bounds
+					;onto the stack
+
+	call setcode	
+	add esp, 24		;resters the stack pointer
+
+	ret
+
+main    ENDP
+
+;this procedure tests to see if a point (x,y)
+;is within the set bounds of a region and returns
+;previoulsy defined "outcode" in the al register
+
+Setcode PROC
+
+push ebp
+mov ebp, esp		;saves and moves the base pointer
+
+push ebx
+push ecx
+push edx			;saves registers to be used
+
+mov eax, 0			;prepares eax to hold the outcode
+mov ebx, [ebp+28]	;moves x coordinate into ebx for testing
+mov ecx, [ebp+20]	;moves min x value into ecx for testing
+mov edx, [ebp+16]	;moves max x value into ecx for testing
+
+	cmp ebx, ecx		;compares x coordinate to minimum allowed x value
+	jge XMAXTEST		;jumps if greater/equal, else sets appropraite 
+	or eax, 2			;eax bit to 1
+	jmp NEXTTEST
+
+XMAXTEST:
+	cmp ebx, edx		;compares x coordiante to maximum allowed x value
+	jle NEXTTEST		;jumps if less/equal, else sets appropriate 
+	or eax, 1			;eax bit to 1
+
+NEXTTEST:				;since x tests were made we can disregard their values 
+						;in the registers and reuse said registers for the y tests
+
+mov ebx, [ebp+24]	;moves y coordinate into ebx for testing
+mov ecx, [ebp+12]	;moves min y value into ecx for testing
+mov edx, [ebp+8]	;moves max y value into ecx for testing
+
+
+	cmp ebx, ecx		;compares y coordinate to minimum allowed y value
+	jge YMAXTEST		;jumps if greater/equal, else sets appropraite 
+	or eax, 8			;eax bit to 1
+	jmp SNRA
+
+YMAXTEST:
+	cmp ebx, edx		;compares y coordiante to maximum allowed y value
+	jle SNRA			;jumps if less/equal, else sets appropriate 
+	or eax, 4			;eax bit to 1
+
+SNRA:
+	pop edx
+	pop ecx
+	pop ebx
+	pop ebp		;restores registers and base pointer
+	ret
+
+Setcode ENDP
+
+
+
+END                             ; end of source code

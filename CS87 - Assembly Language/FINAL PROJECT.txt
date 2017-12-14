@@ -1,0 +1,736 @@
+;Cody Hubbard
+;
+
+.586
+.MODEL FLAT
+
+.STACK  4096            ; reserve 4096-byte stack
+
+.DATA                   ; reserve storage for data
+
+OddArray	 BYTE 64 DUP (?)	;The odd numbers from 1 to 99 in increasing order
+Div_by3Array BYTE 64 DUP (?)	;The numbers from OddArray evenly disible by 3 in increasing order
+Div_by5Array BYTE 32 Dup (?)	;The numbers from OddArray evenly disible by 5 in increasing order
+Div_by7Array BYTE 16 Dup (?)	;The numbers from OddArray evenly disible by 7 in increasing order
+PrimeArray	 BYTE 32 DUP (?)	;The prime numbers from OddArray in increasing order
+
+num1 Word ?
+num2 Word ?
+num3 Word ?
+num4 Word ?
+num5 Word ?				;The variables that will be passed as parameters
+
+SourceSpot DWORD ?		;Keeps track of the position in the source array
+DestSpot DWORD ?		;Keeps track of the position in the destination array
+
+.CODE                   ;Start of main program code
+main    PROC
+
+mov eax,0
+mov ebx,0
+mov ecx,0
+mov edx,0	;Zeros registers for use
+
+;Start of the odd array creation loop
+
+mov ecx, 1			;Initializes the number to be added to the array	
+lea eax, OddArray	;Loads the address of the array into eax for use
+
+OddLoop:
+ 	cmp ecx, 99		;Compares number to be loded and make sure it
+	jg EndOddLoop	;does not exceed 99, if it does, jumps out
+	mov [eax], ecx	;Places the current odd number(that does not exceed 99)
+					;into the OddArray
+	add eax, 1		;Increments the address of where we are pointing to prepare for 
+					;placing the next odd number
+	add ecx, 2		;Increments the odd number to be placed
+	jmp OddLoop
+EndOddLoop:		
+	
+;End of the odd array creation loop
+
+;Start of Divby3Array creation segment
+
+ mov eax, 0
+ mov ebx, 0
+ mov ecx, 0
+ mov edx, 0		;Zeroes out the registers for use(just incase)
+
+Divby3Start:
+
+Divby3Push:
+
+		mov ebx, SourceSpot		;Moves the value of source spot into ebx so we can keep track, and  
+	lea eax, OddArray[1*ebx]	;use it to load the address of the number we want to test
+		mov cl, [eax]			;Moves  the byte we need to test into cl
+								;(cl becasue we need to make sure that only a byte is moved)
+		mov num1, cx			;Extends to a word and moves the byte needed to be tested into num
+		push num1				;Pushes the number onto the stack
+		inc SourceSpot			;Increments the position we are pointing at/testing
+		
+		mov ebx, SourceSpot		;The comments and prcedures are the same for the following 4 parameters
+	lea eax, OddArray[1*ebx]	
+		mov cl, [eax]									
+		mov num2, cx			
+		push num2				
+		inc SourceSpot			
+
+		mov ebx, SourceSpot		
+	lea eax, OddArray[1*ebx]	
+		mov cl, [eax]									
+		mov num3, cx			
+		push num3				
+		inc SourceSpot			
+
+		mov ebx, SourceSpot		
+	lea eax, OddArray[1*ebx]	
+		mov cl, [eax]									
+		mov num4, cx			
+		push num4				
+		inc SourceSpot			
+
+		mov ebx, SourceSpot		
+	lea eax, OddArray[1*ebx]	
+		mov cl, [eax]									
+		mov num5, cx			
+		push num5				
+		inc SourceSpot			
+		
+
+		call Divby3			;calls the procedure that will check the divisibility of the pushed numbers
+		
+
+		pop num5
+		pop num4
+		pop num3
+		pop num2
+		pop num1				;Pops the tested numbers off the stack for possible storage
+
+		cmp num1, 0ffh			;Compares the tested numbers to "ff", the number  we used to indicate
+		je DIV3NEXT2			;the passed parameter was not divisible when checked by the procedure  
+								;and jumps to the next parameter if it is found to be ff
+
+		mov esi, DestSpot		;Given the jump was not made loads the spot in the array the number needs 
+								;to be placed into into the esi register
+		mov dx, num1			;moves the number to be palced into the array into dx (dx for size reasons)
+		mov Div_by3Array[1*esi], dl ;This is the final step for moving the number we found to be divisible into the array
+		inc DestSpot			;Since the number was placed into the array, increments to the next spot
+		 
+DIV3NEXT2:
+		cmp num2, 0ffh			;The comments and procedure above is the same for the next 4 parameters that were tested
+		je DIV3NEXT3			
+								
+		mov esi, DestSpot								
+		mov dx, num2			
+		mov Div_by3Array[1*esi], dl 
+		inc DestSpot			
+
+DIV3NEXT3:
+		cmp num3, 0ffh
+		je DIV3NEXT4
+
+		mov esi, DestSpot
+		mov dx, num3
+		mov Div_by3Array[1*esi], dl 
+		inc DestSpot		 
+DIV3NEXT4:
+		cmp num4, 0ffh
+		je DIV3NEXT5
+
+		mov esi, DestSpot
+		mov dx, num4
+		mov Div_by3Array[1*esi], dl 
+		inc DestSpot		 
+DIV3NEXT5:
+		cmp num5, 0ffh
+		je DIV3NEXTEND
+
+		mov esi, DestSpot
+		mov dx, num5
+		mov Div_by3Array[1*esi], dl 
+		inc DestSpot		 
+DIV3NEXTEND:
+
+		cmp SourceSpot, 49			;Makes sure that the number of places in odd array has not been exceeded,
+		jle Divby3Push				;if it hasnt been exceeded, loops back up to test the next 5 parameters.
+		
+;End of Divby3Array creation segment
+
+mov SourceSpot, 0		;resets the spot counters so that they are ready for the next 
+mov DestSpot, 0			;array creation segment
+
+
+;Start of Divby5Array creation segment
+
+ mov eax, 0
+ mov ebx, 0
+ mov ecx, 0
+ mov edx, 0						;Zeroes out the registers for use(just incase)
+
+Divby5Start:
+
+Divby5Push:
+
+		mov ebx, SourceSpot		;Moves the value of source spot into ebx so we can keep track, and  
+	lea eax, OddArray[1*ebx]	;use it to load the address of the number we want to test
+		mov cl, [eax]			;Moves  the byte we need to test into cl
+								;(cl becasue we need to make sure that only a byte is moved)
+		mov num1, cx			;Extends to a word and moves the byte needed to be tested into num
+		push num1				;Pushes the number onto the stack
+		inc SourceSpot			;Increments the position we are pointing at/testing
+		
+		mov ebx, SourceSpot		;The comments and prcedures are the same for the following 4 parameters
+	lea eax, OddArray[1*ebx]	
+		mov cl, [eax]									
+		mov num2, cx			
+		push num2				
+		inc SourceSpot			
+
+		mov ebx, SourceSpot		
+	lea eax, OddArray[1*ebx]	
+		mov cl, [eax]									
+		mov num3, cx			
+		push num3				
+		inc SourceSpot			
+
+		mov ebx, SourceSpot		
+	lea eax, OddArray[1*ebx]	
+		mov cl, [eax]									
+		mov num4, cx			
+		push num4				
+		inc SourceSpot			
+
+		mov ebx, SourceSpot		
+	lea eax, OddArray[1*ebx]	
+		mov cl, [eax]									
+		mov num5, cx			
+		push num5				
+		inc SourceSpot			
+		
+
+		call Divby5			;calls the procedure that will check the divisibility of the pushed numbers
+		
+
+		pop num5
+		pop num4
+		pop num3
+		pop num2
+		pop num1				;Pops the tested numbers off the stack for possible storage
+
+		cmp num1, 0ffh			;Compares the tested numbers to "ff", the number  we used to indicate
+		je DIV5NEXT2			;the passed parameter was not divisible when checked by the procedure  
+								;and jumps to the next parameter if it is found to be ff
+
+		mov esi, DestSpot		;Given the jump was not made loads the spot in the array the number needs 
+								;to be placed into into the esi register
+		mov dx, num1			;moves the number to be palced into the array into dx (dx for size reasons)
+		mov Div_by5Array[1*esi], dl ;This is the final step for moving the number we found to be divisible into the array
+		inc DestSpot			;Since the number was placed into the array, increments to the next spot
+		 
+DIV5NEXT2:
+		cmp num2, 0ffh			;The comments and procedure above is the same for the next 4 parameters that were tested
+		je DIV5NEXT3			
+								
+		mov esi, DestSpot								
+		mov dx, num2			
+		mov Div_by5Array[1*esi], dl 
+		inc DestSpot			
+
+DIV5NEXT3:
+		cmp num3, 0ffh
+		je DIV5NEXT4
+
+		mov esi, DestSpot
+		mov dx, num3
+		mov Div_by5Array[1*esi], dl 
+		inc DestSpot		 
+DIV5NEXT4:
+		cmp num4, 0ffh
+		je DIV5NEXT5
+
+		mov esi, DestSpot
+		mov dx, num4
+		mov Div_by5Array[1*esi], dl 
+		inc DestSpot		 
+DIV5NEXT5:
+		cmp num5, 0ffh
+		je DIV5NEXTEND
+
+		mov esi, DestSpot
+		mov dx, num5
+		mov Div_by5Array[1*esi], dl 
+		inc DestSpot		 
+DIV5NEXTEND:
+
+		cmp SourceSpot, 49			;Makes sure that the number of places in odd array has not been exceeded,
+		jle Divby5Push				;if it hasnt been exceeded, loops back up to test the next 5 parameters.
+		
+;End of Divby5Array creation segment
+
+mov SourceSpot, 0					;resets the spot counters so that they are ready for the next 
+mov DestSpot, 0						;array creation segment
+
+;Start of Divby7Array creation segment
+
+ mov eax, 0
+ mov ebx, 0
+ mov ecx, 0
+ mov edx, 0				;Zeroes out the registers for use(just incase)
+
+Divby7Start:
+
+Divby7Push:
+
+		mov ebx, SourceSpot		;Moves the value of source spot into ebx so we can keep track, and  
+	lea eax, OddArray[1*ebx]	;use it to load the address of the number we want to test
+		mov cl, [eax]			;Moves  the byte we need to test into cl
+								;(cl becasue we need to make sure that only a byte is moved)
+		mov num1, cx			;Extends to a word and moves the byte needed to be tested into num
+		push num1				;Pushes the number onto the stack
+		inc SourceSpot			;Increments the position we are pointing at/testing
+		
+		mov ebx, SourceSpot		;The comments and prcedures are the same for the following 4 parameters
+	lea eax, OddArray[1*ebx]	
+		mov cl, [eax]									
+		mov num2, cx			
+		push num2				
+		inc SourceSpot			
+
+		mov ebx, SourceSpot		
+	lea eax, OddArray[1*ebx]	
+		mov cl, [eax]									
+		mov num3, cx			
+		push num3				
+		inc SourceSpot			
+
+		mov ebx, SourceSpot		
+	lea eax, OddArray[1*ebx]	
+		mov cl, [eax]									
+		mov num4, cx			
+		push num4				
+		inc SourceSpot			
+
+		mov ebx, SourceSpot		
+	lea eax, OddArray[1*ebx]	
+		mov cl, [eax]									
+		mov num5, cx			
+		push num5				
+		inc SourceSpot			
+		
+
+		call Divby7			;calls the procedure that will check the divisibility of the pushed numbers
+		
+
+		pop num5
+		pop num4
+		pop num3
+		pop num2
+		pop num1				;Pops the tested numbers off the stack for possible storage
+
+		cmp num1, 0ffh			;Compares the tested numbers to "ff", the number  we used to indicate
+		je DIV7NEXT2			;the passed parameter was not divisible when checked by the procedure  
+								;and jumps to the next parameter if it is found to be ff
+
+		mov esi, DestSpot		;Given the jump was not made loads the spot in the array the number needs 
+								;to be placed into into the esi register
+		mov dx, num1			;moves the number to be palced into the array into dx (dx for size reasons)
+		mov Div_by7Array[1*esi], dl ;This is the final step for moving the number we found to be divisible into the array
+		inc DestSpot			;Since the number was placed into the array, increments to the next spot
+		 
+DIV7NEXT2:
+		cmp num2, 0ffh			;The comments and procedure above is the same for the next 4 parameters that were tested
+		je DIV7NEXT3			
+								
+		mov esi, DestSpot								
+		mov dx, num2			
+		mov Div_by7Array[1*esi], dl 
+		inc DestSpot			
+
+DIV7NEXT3:
+		cmp num3, 0ffh
+		je DIV7NEXT4
+
+		mov esi, DestSpot
+		mov dx, num3
+		mov Div_by7Array[1*esi], dl 
+		inc DestSpot		 
+DIV7NEXT4:
+		cmp num4, 0ffh
+		je DIV7NEXT5
+
+		mov esi, DestSpot
+		mov dx, num4
+		mov Div_by7Array[1*esi], dl 
+		inc DestSpot		 
+DIV7NEXT5:
+		cmp num5, 0ffh
+		je DIV7NEXTEND
+
+		mov esi, DestSpot
+		mov dx, num5
+		mov Div_by7Array[1*esi], dl 
+		inc DestSpot		 
+DIV7NEXTEND:
+
+		cmp SourceSpot, 49			;Makes sure that the number of places in odd array has not been exceeded,
+		jle Divby7Push				;if it hasnt been exceeded, loops back up to test the next 5 parameters.
+		
+;End of Divby7Array creation segment
+
+mov SourceSpot, 0					;resets the spot counters so that they are ready for the next 
+mov DestSpot, 0						;array creation segment
+
+;Start of PrimeArray creation segment
+
+ mov eax, 0
+ mov ebx, 0
+ mov ecx, 0
+ mov edx, 0		;Zeroes out the registers for use(just incase)
+
+PrimeStart:
+
+PrimePush:
+
+		mov ebx, SourceSpot		;Moves the value of source spot into ebx so we can keep track, and  
+	lea eax, OddArray[1*ebx]	;use it to load the address of the number we want to test
+		mov cl, [eax]			;Moves  the byte we need to test into cl
+								;(cl becasue we need to make sure that only a byte is moved)
+		mov num1, cx			;Extends to a word and moves the byte needed to be tested into num
+		push num1				;Pushes the number onto the stack
+		inc SourceSpot			;Increments the position we are pointing at/testing
+		
+		mov ebx, SourceSpot		;The comments and prcedures are the same for the following 4 parameters
+	lea eax, OddArray[1*ebx]	
+		mov cl, [eax]									
+		mov num2, cx			
+		push num2				
+		inc SourceSpot			
+
+		mov ebx, SourceSpot		
+	lea eax, OddArray[1*ebx]	
+		mov cl, [eax]									
+		mov num3, cx			
+		push num3				
+		inc SourceSpot			
+
+		mov ebx, SourceSpot		
+	lea eax, OddArray[1*ebx]	
+		mov cl, [eax]									
+		mov num4, cx			
+		push num4				
+		inc SourceSpot			
+
+		mov ebx, SourceSpot		
+	lea eax, OddArray[1*ebx]	
+		mov cl, [eax]									
+		mov num5, cx			
+		push num5				
+		inc SourceSpot			
+		
+
+		call PrimeProc			;calls the procedure that will check the divisibility of the pushed numbers
+		
+
+		pop num5
+		pop num4
+		pop num3
+		pop num2
+		pop num1				;Pops the tested numbers off the stack for possible storage
+
+		cmp num1, 0ffh			;Compares the tested numbers to "ff", the number  we used to indicate
+		je PrimeNEXT2			;the passed parameter was not divisible when checked by the procedure  
+								;and jumps to the next parameter if it is found to be ff
+
+		mov esi, DestSpot		;Given the jump was not made loads the spot in the array the number needs 
+								;to be placed into into the esi register
+		mov dx, num1			;moves the number to be palced into the array into dx (dx for size reasons)
+		mov PrimeArray[1*esi], dl ;This is the final step for moving the number we found to be divisible into the array
+		inc DestSpot			;Since the number was placed into the array, increments to the next spot
+		 
+PrimeNEXT2:
+		cmp num2, 0ffh			;The comments and procedure above is the same for the next 4 parameters that were tested
+		je PrimeNEXT3			
+								
+		mov esi, DestSpot								
+		mov dx, num2			
+		mov PrimeArray[1*esi], dl 
+		inc DestSpot			
+
+PrimeNEXT3:
+		cmp num3, 0ffh
+		je PrimeNEXT4
+
+		mov esi, DestSpot
+		mov dx, num3
+		mov PrimeArray[1*esi], dl 
+		inc DestSpot		 
+PrimeNEXT4:
+		cmp num4, 0ffh
+		je PrimeNEXT5
+
+		mov esi, DestSpot
+		mov dx, num4
+		mov PrimeArray[1*esi], dl 
+		inc DestSpot		 
+PrimeNEXT5:
+		cmp num5, 0ffh
+		je PrimeNEXTEND
+
+		mov esi, DestSpot
+		mov dx, num5
+		mov PrimeArray[1*esi], dl 
+		inc DestSpot		 
+PrimeNEXTEND:
+
+		cmp SourceSpot, 49			;Makes sure that the number of places in odd array has not been exceeded,
+		jle PrimePush				;if it hasnt been exceeded, loops back up to test the next 5 parameters.
+		
+;End of PrimeArray creation segment
+
+	ret
+
+main    ENDP
+
+;This procedcedure will find the numbers in the OddArry that
+;are divisible by three and place them into the Div_by3Array
+
+Divby3  PROC
+
+push ebp
+mov ebp, esp		;saves and moves the base pointer
+
+push eax
+push ebx
+push ecx
+push edx			;saves registers to be used onto the stack
+
+mov eax,0
+mov ebx,0
+mov ecx,0
+mov edx,0			;Zeros registers for use
+
+mov ebx, 3			;Moves 3 into ebx so we can test divisibility/divide
+mov ecx, 5			;readies loop
+mov edx, 16			;moves 16 into edx for base pointer manipulation/loop use
+
+DIV3LOOPSTART:
+
+mov al, [ebp+edx]	;Moves the parameter to be tested into al
+div bl				;Divides/test for divisibility
+cmp ah, 0			;Compares remainder to 0 to see if it was divisible
+je DIV3CONT			;If remainder was 0 means the test was successful and the number 
+					;was divisible by our test number; jumps to the next parameter's test.
+
+mov WORD PTR[ebp+edx], 0ffh	;This places "ff" into the spot our tested parameter was placed;
+							;this effectivly gives the tested parameter the specified value 
+							;for use in tests once it is popped back
+DIV3CONT:
+
+mov eax,0			;Moves 0 into eax so It can be used for further division(may not be neccessary)
+sub edx, 2			;Reduces the register used as our parameter pointer so that we will be
+					;pointing at the next parameter on the stack during the next iteration of the loop 
+
+loop DIV3LOOPSTART	;loops above test 4 more times (5 total iterations)
+
+pop edx
+pop ecx
+pop ebx
+pop eax
+pop ebp
+ret
+
+Divby3  ENDP
+
+;This procedcedure will find the numbers in the OddArry that
+;are divisible by five and place them into the Div_by5Array
+
+Divby5  PROC
+
+push ebp
+mov ebp, esp		;saves and moves the base pointer
+
+push eax
+push ebx
+push ecx
+push edx			;saves registers to be used onto the stack
+
+mov eax,0
+mov ebx,0
+mov ecx,0
+mov edx,0			;Zeros registers for use
+
+mov ebx, 5			;Moves 5 into ebx so we can test divisibility/divide
+mov ecx, 5			;readies loop
+mov edx, 16			;moves 16 into edx for base pointer manipulation/loop use
+
+DIV5LOOPSTART:
+
+mov al, [ebp+edx]	;Moves the parameter to be tested into al
+div bl				;Divides/test for divisibility
+cmp ah, 0			;Compares remainder to 0 to see if it was divisible
+je DIV5CONT			;If remainder was 0 means the test was successful and the number 
+					;was divisible by our test number; jumps to the next parameter's test.
+
+mov WORD PTR[ebp+edx], 0ffh	;This places "ff" into the spot our tested parameter was placed;
+							;this effectivly gives the tested parameter the specified value 
+							;for use in tests once it is popped back
+DIV5CONT:
+
+mov eax,0			;Moves 0 into eax so It can be used for further division(may not be neccessary)
+sub edx, 2			;Reduces the register used as our parameter pointer so that we will be
+					;pointing at the next parameter on the stack during the next iteration of the loop 
+
+loop DIV5LOOPSTART	;loops above test 4 more times (5 total iterations)
+
+pop edx
+pop ecx
+pop ebx
+pop eax
+pop ebp
+ret
+
+Divby5  ENDP
+
+;This procedcedure will find the numbers in the OddArry that
+;are divisible by seven and place them into the Div_by7Array
+
+Divby7  PROC
+
+push ebp
+mov ebp, esp		;saves and moves the base pointer
+
+push eax
+push ebx
+push ecx
+push edx			;saves registers to be used onto the stack
+
+mov eax,0
+mov ebx,0
+mov ecx,0
+mov edx,0			;Zeros registers for use
+
+mov ebx, 7			;Moves 7 into ebx so we can test divisibility/divide
+mov ecx, 5			;readies loop
+mov edx, 16			;moves 16 into edx for base pointer manipulation/loop use
+
+DIV7LOOPSTART:
+
+mov al, [ebp+edx]	;Moves the parameter to be tested into al
+div bl				;Divides/test for divisibility
+cmp ah, 0			;Compares remainder to 0 to see if it was divisible
+je DIV7CONT			;If remainder was 0 means the test was successful and the number 
+					;was divisible by our test number; jumps to the next parameter's test.
+
+mov WORD PTR[ebp+edx], 0ffh	;This places "ff" into the spot our tested parameter was placed;
+							;this effectivly gives the tested parameter the specified value 
+							;for use in tests once it is popped back
+DIV7CONT:
+
+mov eax,0			;Moves 0 into eax so It can be used for further division(may not be neccessary)
+sub edx, 2			;Reduces the register used as our parameter pointer so that we will be
+					;pointing at the next parameter on the stack during the next iteration of the loop 
+
+loop DIV7LOOPSTART	;loops above test 4 more times (5 total iterations)
+
+pop edx
+pop ecx
+pop ebx
+pop eax
+pop ebp
+ret
+
+Divby7  ENDP
+
+;This procedcedure will find the numbers in the OddArry that
+;are prime and place them into the PrimeArray
+
+PrimeProc  PROC
+
+push ebp
+mov ebp, esp		;saves and moves the base pointer
+
+push eax
+push ebx
+push ecx
+push edx			;saves registers to be used onto the stack
+
+mov eax,0
+mov ebx,0
+mov ecx,0
+mov edx,0			;Zeros registers for use
+
+mov edx, 16			;moves 16 into edx for base pointer manipulation/loop use
+mov ecx, 5			;readies loop
+
+
+PrimeNextParameter:	;This true loop is the main loop that will move to the next
+					;parameter, the nested, fake loop, "PrimeDivionTest" checks for 
+					;primeness
+
+mov ebx, 3			;Moves 3 into ebx so we can start prime test
+mov eax, 0			;zeroes out register(to remove remainder from previous division)
+mov al, [ebp+edx]	;Moves the parameter to be tested into al
+
+cmp al, 1
+je NotPrime
+cmp al, 3
+je PrimeUnder10
+cmp al, 5 
+je PrimeUnder10		
+cmp al, 7			;These three test are simply there to make sure that the 3 primes that are under 10
+je PrimeUnder10		;(3, 5, & 7) are not replaced with "ff"
+
+
+PrimeDivionTest:	;This fake loop will check an idividual parameter for being prime
+					;by dividing it by 3, 5, and 7
+
+
+mov eax, 0			;zeroes out register(to remove remainder from previous division)
+mov al, [ebp+edx]	;Moves the parameter to be tested into al (again for looping purposes)
+
+div bl				;Divides/tests for prime
+cmp ah, 0			;Compares remainder to 0 to see if division was successful
+je NotPrime			;If remainder was 0 means the division was successful and the number 
+					;is not prime; jumps.
+
+add ebx, 2				;Increments the number we are dividing by to test primeness(3 -> 5 -> 7)
+cmp ebx, 7				;and goes to the next parameter if it is above 7  
+jle PrimeDivionTest		;(being above 7 means that all numbers needed to be tested have been tested)
+
+
+sub edx, 2				;Reduces the register used as our parameter pointer so that we will be
+						;pointing at the next parameter on the stack during the next iteration of the loop 
+loop PrimeNextParameter	;loops above test 4 more times (5 total iterations)
+
+pop edx
+pop ecx
+pop ebx
+pop eax
+pop ebp
+ret
+
+NotPrime:
+mov WORD PTR[ebp+edx], 0ffh	;This places "ff" into the spot our tested parameter was placed;
+							;this effectivly gives the tested parameter the specified negative 
+							;value for use in tests once it is popped back
+
+sub edx, 2			;Reduces the register used as our parameter pointer so that we will be
+					;pointing at the next parameter on the stack during the next iteration of the loop
+loop PrimeNextParameter
+
+pop edx
+pop ecx
+pop ebx
+pop eax
+pop ebp
+ret
+
+PrimeUnder10:
+sub edx, 2				;Reduces the register used as our parameter pointer so that we will be
+						;pointing at the next parameter on the stack during the next iteration of the loop 
+loop PrimeNextParameter
+
+PrimeProc  ENDP
+
+END                     ; end of source code
+

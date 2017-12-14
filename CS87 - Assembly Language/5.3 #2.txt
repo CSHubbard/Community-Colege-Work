@@ -1,0 +1,72 @@
+.586
+.MODEL FLAT
+.STACK  4096        ; reserve 4096-byte stack
+
+
+.DATA               ; reserve storage for data
+
+ltrArray DWORD 41, 61, 42, 62, 43, 63, 44, 64, 0
+
+
+.CODE               ; start of main program code
+
+main    PROC
+
+lea eax, ltrArray
+push eax			;pushes the parameter
+					;address of array of characters
+
+call upCount		;calls upCount function
+add esp, 4			;resets stack pointer
+
+	ret
+
+main ENDP
+
+;function counts the number of Uppercase letters and returns the
+;# of them in eax
+
+upCount PROC
+	
+	push ebp
+	mov ebp, esp	;saves & moves base pointer
+
+	push ecx
+	push ebx		;saves registers we will use
+
+	mov eax, [ebp+8]	;moves the parameter(address of array) into eax for use
+	mov ecx, 0			;readies the upper case letter counter	
+
+	START:
+	
+	mov ebx, [eax]		;moves letter(ascii value) into ebx for comparisons
+	cmp ebx, 0
+	je SNRA				;leaves if the end of the string is reached
+				
+	cmp ebx, 61			;compares current letter (in ebx) to 61,
+	jge RUP				;(the ascii for lowercase a) and leaves if it is g/e.
+						;(being g/e means its a lowercase letter)
+	
+	inc ecx				;if the above jumps were not met that means this is
+						;an uppercase letter and we must inc our Upcount, 
+						;this does so.
+
+RUP:
+	add eax, 4			;adds 4 to eax, which holds the address of the first letter in 
+						;our array, moving us to the next position/letter in  the array
+
+	jmp START			;Loops for next letter
+
+
+	SNRA:
+	
+	mov eax, ecx		;moves our Upper Count into eax for returning
+	
+	pop ebx	
+	pop ecx			;restores registers
+	pop ebp			;resotres base pointer
+	ret
+	
+upCount ENDP
+
+END
