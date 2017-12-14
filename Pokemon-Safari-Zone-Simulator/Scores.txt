@@ -1,0 +1,34 @@
+
+Trainer James had 0 Safari Balls remaining and caught no Pokemon.
+
+Trainer Shane had 28 Safari Balls remaining and caught
+1 CHARMANDER.
+1 MAGIKARP.
+
+Trainer Cody had 30 Safari Balls remaining and caught no Pokemon.
+1 BULBASAUR.
+1 MAGIKARP.
+
+Trainer cody had 21 Safari Balls remaining and caught
+3 BULBASAUR.
+2 CHARMANDER.
+1 MAGIKARP.
+
+Trainer ody had 22 Safari Balls remaining and caught
+2 BULBASAUR.
+1 CHARMANDER.
+1 PIKACHU.
+
+Trainer Ieesha had 14 Safari Balls remaining and caught
+1 BULBASAUR.
+1 CHARMANDER.
+1 SQUIRTLE.
+1 PIDGEOTTO.
+1 PIKACHU.
+1 SANDSHREW.
+1 VULPIX.
+1 JIGGLYPUFF.
+1 MEOWTH.
+1 STARYU.
+1 SCYTHER.
+1 MAGIKARP.
